@@ -13,10 +13,24 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 
-POMODORO_WORK = 25
-POMODORO_SHORT_BREAK = 5
-POMODORO_LONG_BREAK = 15
-POMODOROS_BEFORE_LONG_BREAK = 4
+work_len = 25
+short_break_len = 5
+long_break_len = 15
+cycles_before_long = 4
+
+if "work_minutes" not in st.session_state:
+    st.session_state.work_minutes = work_len
+if "short_break_minutes" not in st.session_state:
+    st.session_state.short_break_minutes = short_break_len
+if "long_break_minutes" not in st.session_state:
+    st.session_state.long_break_minutes = long_break_len
+if "cycles_before_long" not in st.session_state:
+    st.session_state.cycles_before_long = cycles_before_long
+
+work_len = st.session_state.work_minutes
+short_break_len = st.session_state.short_break_minutes
+long_break_len = st.session_state.long_break_minutes
+cycles_before_long = st.session_state.cycles_before_long
 
 TAG_COLORS = {
     "Work": "#FF6B6B",
@@ -95,11 +109,11 @@ def calculate_pomodoro_segments(total_work_minutes: int) -> List[Tuple[int, int]
     remaining = total_work_minutes
     pomodoro_count = 0
     while remaining > 0:
-        work_time = min(POMODORO_WORK, remaining)
+        work_time = min(work_len, remaining)
         remaining -= work_time
         if remaining > 0:
             pomodoro_count += 1
-            break_time = (POMODORO_LONG_BREAK if pomodoro_count % POMODOROS_BEFORE_LONG_BREAK == 0 else POMODORO_SHORT_BREAK)
+            break_time = (long_break_len if pomodoro_count % cycles_before_long == 0 else short_break_len)
         else:
             break_time = 0
         segments.append((work_time, break_time))
@@ -309,12 +323,50 @@ def render_header():
 
 def render_sidebar():
     with st.sidebar:
-        st.header("⚙️ Configuration")
+        st.header("⏱️ Session settings")
+
         col1, col2 = st.columns(2)
         with col1:
-            st.session_state.day_start_hour = st.number_input("Start", 0, 23, st.session_state.day_start_hour)
+            st.session_state.work_minutes = st.number_input(
+                "Focus duration (min)",
+                min_value=5,
+                max_value=120,
+                value=st.session_state.work_minutes,
+                step=5,
+            )
         with col2:
-            st.session_state.day_end_hour = st.number_input("End", 0, 23, st.session_state.day_end_hour)
+            st.session_state.short_break_minutes = st.number_input(
+                "Short pause (min)",
+                min_value=1,
+                max_value=60,
+                value=st.session_state.short_break_minutes,
+                step=1,
+            )
+
+        col3, col4 = st.columns(2)
+        with col3:
+            st.session_state.long_break_minutes = st.number_input(
+                "Long pause (min)",
+                min_value=5,
+                max_value=120,
+                value=st.session_state.long_break_minutes,
+                step=5,
+            )
+        with col4:
+            st.session_state.cycles_before_long = st.number_input(
+                "Focus blocks before long pause",
+                min_value=1,
+                max_value=10,
+                value=st.session_state.cycles_before_long,
+                step=1,
+            )
+
+        st.header("⚙️ Day Start/End")
+        col1, col2 = st.columns(2)
+        with col1:
+            st.session_state.day_start_hour = st.number_input("Start", st.session_state.day_start_hour, placeholder="e.g. 6 for 6 AM")
+        with col2:
+            st.session_state.day_end_hour = st.number_input("End", st.session_state.day_end_hour, placeholder="e.g. 23 for 11 PM")
 
         st.divider()
         st.header("🎯 Flexible Task")
