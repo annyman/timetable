@@ -460,7 +460,7 @@ def render_table(slots: List[TimeSlot]):
     st.dataframe(
         df,
         column_config={
-            "Color": st.column_config.JsonColumn("Color", help="Task category color")
+            "Color": st.column_config.ColorColumn("Color", help="Task category color")
         },
         hide_index=True,
         use_container_width=True
