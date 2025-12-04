@@ -459,9 +459,6 @@ def render_table(slots: List[TimeSlot]):
     # Display with color column
     st.dataframe(
         df,
-        column_config={
-            "Color": st.column_config.ColorColumn("Color", help="Task category color")
-        },
         hide_index=True,
         use_container_width=True
     )
