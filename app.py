@@ -8,7 +8,7 @@ from dataclasses import dataclass
 # ==================== CONFIGURATION ====================
 
 st.set_page_config(
-    page_title="Pomodoro Scheduler",
+    page_title="Automated Task Scheduler",
     layout="wide",
     initial_sidebar_state="expanded"
 )
